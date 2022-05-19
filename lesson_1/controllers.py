@@ -2,7 +2,7 @@
 from jinja2 import Template
 import os
 
-def render(template_name, error=None **kwargs):
+def render(template_name, error=None, **kwargs):
     """
     :param template_name: template's name
     :param kwargs: template's parameters

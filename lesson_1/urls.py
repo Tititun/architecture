@@ -9,7 +9,7 @@ url_map = {
 class UrlDispatcher:
     def __init__(self, url: str, method: str):
         self.url = url.strip('/')
-        self.method
+        self.method = method
 
     def get_page(self):
         if self.url in url_map:
