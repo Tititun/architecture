@@ -7,7 +7,8 @@ class Request:
         self.headers = self.get_headers()
 
     def get_headers(self) -> dict:
-        return {k[5:]: v for k, v in self.environ if k.starts_with('HTTP_ ')}
+        return {k[5:]: v for k, v in self.environ.items()
+                if k.startswith('HTTP_ ')}
 
     def get_query_params(self) -> dict:
         qs = self.environ.get('QUERY_STRING')

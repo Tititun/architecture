@@ -26,4 +26,4 @@ class Framework:
     def get_response(request:Request, view:View) -> Response:
         if hasattr(view, request.method):
             return getattr(view, request.method)(view, request)
-        return Response(400, 'method not supported')
+        return Response('400', 'method not supported')

@@ -3,5 +3,5 @@ from dataclasses import dataclass
 
 @dataclass
 class Response:
-    status: int
+    status: str
     body: str
