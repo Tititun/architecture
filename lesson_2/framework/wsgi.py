@@ -1,6 +1,6 @@
-from request import Request
-from response import Response
-from view import View
+from .request import Request
+from .response import Response
+from .view import View
 
 
 class Framework:
