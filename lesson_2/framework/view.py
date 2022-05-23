@@ -25,7 +25,7 @@ class AskView(View):
         template = os.path.join(os.path.dirname(__file__),
                                 'templates/ask_form.html')
         with open(template) as f:
-            return Response('200 OK', Template(f.read()))
+            return Response('200 OK', Template(f.read()).render())
 
     def post(self, request):
         content_length_data = request.environ.get('CONTENT_LENGTH')
