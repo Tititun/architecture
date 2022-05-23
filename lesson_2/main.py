@@ -4,7 +4,7 @@ from framework.url import Url
 
 urls = [
     Url('/', HomeView),
-    Url('ask', AskView)
+    Url('/ask', AskView)
 ]
 
 app = Framework(urls)

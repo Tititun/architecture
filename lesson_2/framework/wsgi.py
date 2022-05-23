@@ -20,10 +20,10 @@ class Framework:
         for url in self.urls:
             if url.path == path:
                 return url.view
-        return
+        return Response('404 ERROR', 'page not found')
 
     @staticmethod
-    def get_response(request:Request, view:View) -> Response:
+    def get_response(request: Request, view: View) -> Response:
         if hasattr(view, request.method):
             return getattr(view, request.method)(view, request)
-        return Response('400', 'method not supported')
+        return Response('400 ERROR', 'method not supported')
