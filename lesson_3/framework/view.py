@@ -1,14 +1,14 @@
+import os
 from .response import Response
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
 
-TEMPLATES_FOLDER = 'templates'
+TEMPLATES_FOLDER = os.path.join(os.path.dirname(__file__), 'templates')
 
 
 class View:
-    def __init__(self):
-        self.env = Environment()
-        self.env.loader = FileSystemLoader(TEMPLATES_FOLDER)
+    env = Environment()
+    env.loader = FileSystemLoader(TEMPLATES_FOLDER)
 
     def get(self, request):
         return
@@ -25,6 +25,12 @@ class HomeView(View):
     def post(self, request):
         template = self.env.get_template('base.html')
         return Response('200 OK', template.render({'request_type': 'POST'}))
+
+
+class AboutView(View):
+    def get(self, request):
+        template = self.env.get_template('about.html')
+        return Response('200 OK', template.render())
 
 
 class AskView(View):
