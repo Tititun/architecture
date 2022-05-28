@@ -1,3 +1,4 @@
+{% extends "base.html" %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,7 @@
     <title>Ask a question</title>
 </head>
 <body>
+{% block content %}
   <form method="POST">
     <label for="subject">Subject:</label><br>
     <input type="text" id="subject" name="subject"><br>
@@ -16,6 +18,7 @@
     <input type="text" id="email" name="email">
     <p>
     <input type="submit">
+{% endblock %}
 </form>
 </body>
 </html>
