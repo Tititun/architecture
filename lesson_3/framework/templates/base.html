@@ -33,8 +33,10 @@
         </ul>
       </div>
     </nav>
-    {{ request_type }}
-    {% block content %}
-    {% endblock %}
+    <div class=px-2>
+        {{ request_type }}
+        {% block content %}
+        {% endblock %}
+    </div>
 </body>
 </html>
