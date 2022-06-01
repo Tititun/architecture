@@ -73,7 +73,7 @@ class CategoriesView(View):
 class CategoryEdit(View):
     template = View.env.get_template('category_form.html')
     def post(self, request):
-        query_params = request.get_query_params()
+        query_params = self.process_post(request)
         name = query_params.get('category_name')
         id_ = int(query_params.get('category_id'))
         success = Category(id_).update(name)
