@@ -1,9 +1,15 @@
-from .response import Response
-from jinja2 import Template
 import os
+from .response import Response
+from jinja2 import FileSystemLoader
+from jinja2.environment import Environment
+
+TEMPLATES_FOLDER = os.path.join(os.path.dirname(__file__), 'templates')
 
 
 class View:
+    env = Environment()
+    env.loader = FileSystemLoader(TEMPLATES_FOLDER)
+
     def get(self, request):
         return
 
@@ -13,19 +19,27 @@ class View:
 
 class HomeView(View):
     def get(self, request):
-        return Response('200 OK', 'get request')
+        template = self.env.get_template('base.html')
+        return Response('200 OK', template.render({'request_type': 'GET'}))
 
     def post(self, request):
-        return Response('201 OK', 'post request')
+        template = self.env.get_template('base.html')
+        return Response('200 OK', template.render({'request_type': 'POST'}))
+
+
+class AboutView(View):
+    def get(self, request):
+        template = self.env.get_template('about.html')
+        return Response('200 OK', template.render())
 
 
 class AskView(View):
 
     def get(self, request):
-        template = os.path.join(os.path.dirname(__file__),
-                                'templates/ask_form.html')
-        with open(template) as f:
-            return Response('200 OK', Template(f.read()).render())
+        # template = os.path.join(os.path.dirname(__file__),
+        #                         'templates/ask_form.html')
+        template = self.env.get_template('ask_form.html')
+        return Response('200 OK', template.render())
 
     def post(self, request):
         content_length_data = request.environ.get('CONTENT_LENGTH')
