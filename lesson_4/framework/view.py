@@ -70,7 +70,7 @@ class CategoriesView(View):
             {'categories': categories}))
 
 
-class CategoriyEdit(View):
+class CategoryEdit(View):
     template = View.env.get_template('category_form.html')
     def post(self, request):
         query_params = request.get_query_params()
