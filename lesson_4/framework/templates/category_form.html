@@ -5,11 +5,14 @@
 {% endblock %}
 
 {% block content %}
+  {{ success_message }}
   <form method="POST">
     <label for="category_name">Name:</label><br>
     <input type="text" id="category_name" name="category_name" value="{{ category.name }}"><br>
+    <input type="hidden" id="category_id" name="category_id" value={{ category.id }}>
+    <br>
     <p>
-    <input type="submit">
+    <input type="submit" value="Отредактировать">
     </p>
   </form>
 {% endblock %}

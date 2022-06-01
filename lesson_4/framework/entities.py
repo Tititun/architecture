@@ -74,6 +74,16 @@ class Category(EducationServise):
         params = {'name': self.name}
         execute(statement, params)
 
+    def update(self, name):
+        statement = 'UPDATE categories SET name = :new_name' \
+                    ' WHERE name = :old_name'
+        params = {
+            'new_name': name,
+            'old_name': self.name
+        }
+        _, success =execute(statement, params)
+        return success
+
     @staticmethod
     def list_all():
         statement = 'SELECT * FROM categories'

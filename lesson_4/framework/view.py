@@ -62,22 +62,28 @@ class CategoriesView(View):
             elif k == 'edit':
                 template = View.env.get_template('category_form.html')
                 return Response('200 OK', template.render(
-                    {'category': Category(int(v)).__dict__}))
+                                {'category': Category(int(v)).__dict__,
+                                 'success_message': ''})
+                                )
         categories = Category.list_all()
         return Response('200 OK', self.template.render(
             {'categories': categories}))
 
 
-# class CategoriyEdit(View):
-#     template = View.env.get_template('category_form.html')
-#     def get(self, request):
-#         query_params = request.get_query_params()
-#         category_id = query_params.get('id')
-#         if category_id:
-#             return Response('200 OK', self.template.render(
-#                 {'category': Category(int(category_id).__dict__)}))
-#         else:
-#             return Response('200 OK', 'Something went wrong')
+class CategoriyEdit(View):
+    template = View.env.get_template('category_form.html')
+    def post(self, request):
+        query_params = request.get_query_params()
+        name = query_params.get('category_name')
+        id_ = int(query_params.get('category_id'))
+        success = Category.update(name)
+        if success:
+            return Response('200 OK', self.template.render(
+                {'category': Category(name).__dict__,
+                 'success_message': 'Name was successfully changed'})
+                            )
+        return Response('400 ERROR', 'Something went wrong')
+
 
 class AskView(View):
 
