@@ -44,6 +44,16 @@ class CategoriesView(View):
         categories = Category.list_all()
         return Response('200 OK', template.render({'categories': categories}))
 
+    def post(self, request):
+        content_length_data = request.environ.get('CONTENT_LENGTH')
+        content_length = int(content_length_data) if content_length_data else 0
+        data = request.environ['wsgi.input'].read(content_length)\
+            if content_length > 0 else b''
+        with open('user_data', 'w') as f:
+            f.write(data.decode('utf-8'))
+        return Response('201 OK', 'Form submitted')
+
+
 
 class AskView(View):
 

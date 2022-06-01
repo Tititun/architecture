@@ -21,7 +21,9 @@
               <td><a href="#">{{ category.name }}</a></td>
             <td>
               <button type="button" class="btn btn-success"><i class="fas fa-edit">Edit</i></button>
-                <button type="button" class="btn btn-danger"><a href="/categories?delete=True&category={{ category.name }}"><i class="far fa-trash-alt">Delete</i></a></button>
+              <form action="delete" method="post" id="{{ category.id }}">
+                  <button type="submit" class="btn btn-danger" name="delete"><i class="far fa-trash-alt">Delete</i></button>
+              </form>
             </td>
           </tr>
           {% endfor %}

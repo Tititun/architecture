@@ -6,19 +6,20 @@ import traceback
 DB_PATH = os.path.join(os.path.dirname(__file__), 'mydb.db')
 
 def execute(statement: str, params: dict = None) -> (str, bool):
-    con = sqlite3.connect(DB_PATH)
-    cursor = con.cursor()
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
     try:
         cursor.execute(statement, params if params else {})
-        res = cursor.fetchall()
-        con.commit()
+        res = [dict(r) for r in cursor.fetchall()]
+        conn.commit()
         return res, True
     except:
         print(traceback.format_exc())
         return traceback.format_exc(), False
     finally:
         cursor.close()
-        con.close()
+        conn.close()
 
 
 def init_db():
@@ -69,10 +70,10 @@ class Category(EducationServise):
 
     @staticmethod
     def list_all():
-        statement = 'SELECT name FROM categories'
+        statement = 'SELECT * FROM categories'
         res, success = execute(statement)
         if success:
-            return [{'name': r[0]} for r in res]
+            return res
         else:
             return f'Something went wrong. Error {res}'
 
@@ -117,9 +118,11 @@ class Course(EducationServise):
 
 
 if __name__ == '__main__':
-    init_db()
-    # for category in ['правильное питание', 'спорт', 'просвещение']:
-    #     Category(category).create()
-
-    for course in ['плавание', 'бег', 'ходьба']:
-        Course(course, 2).create()
+    # init_db()
+    # # for category in ['правильное питание', 'спорт', 'просвещение']:
+    # #     Category(category).create()
+    #
+    # for course in ['плавание', 'бег', 'ходьба']:
+    #     Course(course, 2).create()
+    cat = Category.list_all()
+    print(cat)

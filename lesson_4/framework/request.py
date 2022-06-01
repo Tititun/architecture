@@ -2,7 +2,7 @@ class Request:
     def __init__(self, environ: dict):
         self.environ = environ
         self.method = environ['REQUEST_METHOD'].lower()
-        self.path = environ['RAW_URI'].lower()
+        self.path = environ['RAW_URI'].lower().split('?')[0]
         self.query_params = self.get_query_params()
         self.headers = self.get_headers()
 
