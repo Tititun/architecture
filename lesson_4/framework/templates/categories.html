@@ -21,7 +21,7 @@
               <td><a href="#">{{ category.name }}</a></td>
             <td>
               <button type="button" class="btn btn-success"><i class="fas fa-edit">Edit</i></button>
-            <button type="button" class="btn btn-danger"><i class="far fa-trash-alt">Delete</i></button>
+                <button type="button" class="btn btn-danger"><a href="/categories?delete=True&category={{ category.name }}"><i class="far fa-trash-alt">Delete</i></a></button>
             </td>
           </tr>
           {% endfor %}

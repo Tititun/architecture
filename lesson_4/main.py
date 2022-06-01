@@ -7,7 +7,7 @@ urls = [
     Url('/', HomeView),
     Url('/ask', AskView),
     Url('/about', AboutView),
-    Url('/courses', CategoriesView),
+    Url('/categories', CategoriesView),
 ]
 
 app = Framework(urls)

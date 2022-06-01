@@ -36,6 +36,10 @@ class AboutView(View):
 
 class CategoriesView(View):
     def get(self, request):
+        query_params = request.get_query_params()
+        category_name = query_params.get('category')
+        if category_name and query_params.get('delete'):
+            Category(category_name).delete()
         template = self.env.get_template('categories.html')
         categories = Category.list_all()
         return Response('200 OK', template.render({'categories': categories}))
