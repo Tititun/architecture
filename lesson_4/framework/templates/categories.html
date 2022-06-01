@@ -11,8 +11,9 @@
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Actions</th>
+            <th scope="col">Categories</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -20,7 +21,11 @@
           <tr>
               <td><a href="#">{{ category.name }}</a></td>
             <td>
-              <button type="button" class="btn btn-success"><i class="fas fa-edit">Edit</i></button>
+              <form method="post">
+                  <button type="submit" class="btn btn-success" name="edit" value="{{ category.id }}"><i class="fas fa-edit">Edit</i></button>
+              </form>
+            </td>
+            <td>
               <form method="post">
                   <button type="submit" class="btn btn-danger" name="delete" value="{{ category.id }}"><i class="far fa-trash-alt">Delete</i></button>
               </form>

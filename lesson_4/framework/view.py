@@ -17,8 +17,11 @@ class View:
         content_length = int(content_length_data) if content_length_data else 0
         data = request.environ['wsgi.input'].read(content_length) \
             if content_length > 0 else b''
-        data = data.decode('utf-8').split('=')
-        return {data[0]: data[1].strip()}
+        res = {}
+        for row in data.decode('utf-8').split('\n'):
+            k, v = row.split('=')
+            res[k] = v
+        return res
 
     def get(self, request):
         return
@@ -47,23 +50,34 @@ class CategoriesView(View):
     template = View.env.get_template('categories.html')
 
     def get(self, request):
-        query_params = request.get_query_params()
-        category_name = query_params.get('category')
-        if category_name and query_params.get('delete'):
-            Category(category_name).delete()
         template = self.env.get_template('categories.html')
         categories = Category.list_all()
         return Response('200 OK', template.render({'categories': categories}))
 
     def post(self, request):
         data = self.process_post(request)
-        for k, v in data.values():
+        for k, v in data.items():
             if k == 'delete':
-                Category(v).delete()
+                Category(int(v)).delete()
+            elif k == 'edit':
+                template = View.env.get_template('category_form.html')
+                return Response('200 OK', template.render(
+                    {'category': Category(int(v)).__dict__}))
         categories = Category.list_all()
         return Response('200 OK', self.template.render(
             {'categories': categories}))
 
+
+# class CategoriyEdit(View):
+#     template = View.env.get_template('category_form.html')
+#     def get(self, request):
+#         query_params = request.get_query_params()
+#         category_id = query_params.get('id')
+#         if category_id:
+#             return Response('200 OK', self.template.render(
+#                 {'category': Category(int(category_id).__dict__)}))
+#         else:
+#             return Response('200 OK', 'Something went wrong')
 
 class AskView(View):
 
