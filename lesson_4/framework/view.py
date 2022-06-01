@@ -18,7 +18,7 @@ class View:
         data = request.environ['wsgi.input'].read(content_length) \
             if content_length > 0 else b''
         res = {}
-        for row in data.decode('utf-8').split('\n'):
+        for row in data.decode('utf-8').split('&'):
             k, v = row.split('=')
             res[k] = v
         return res
@@ -76,7 +76,7 @@ class CategoriyEdit(View):
         query_params = request.get_query_params()
         name = query_params.get('category_name')
         id_ = int(query_params.get('category_id'))
-        success = Category.update(name)
+        success = Category(id_).update(name)
         if success:
             return Response('200 OK', self.template.render(
                 {'category': Category(name).__dict__,

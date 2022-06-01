@@ -57,6 +57,7 @@ class Category(EducationServise):
 
     def __init__(self, name):
         if isinstance(name, int):
+            self.id = name
             statement = 'SELECT name FROM categories WHERE id = :id'
             params = {'id': name}
             name, _ = execute(statement, params)
