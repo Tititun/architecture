@@ -56,7 +56,13 @@ class EducationServise(ABC):
 class Category(EducationServise):
 
     def __init__(self, name):
-        self.name = name
+        if isinstance(name, int):
+            statement = 'SELECT name FROM categories WHERE id = :id'
+            params = {'id': name}
+            name, _ = execute(statement, params)
+            self.name = name[0]['name']
+        else:
+            self.name = name
 
     def create(self):
         statement = 'INSERT INTO categories VALUES (NULL, :name)'
@@ -124,5 +130,5 @@ if __name__ == '__main__':
     #
     # for course in ['плавание', 'бег', 'ходьба']:
     #     Course(course, 2).create()
-    cat = Category.list_all()
-    print(cat)
+    cat = Category(1)
+    print(cat.name)

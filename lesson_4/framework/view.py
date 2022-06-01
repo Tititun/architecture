@@ -11,6 +11,15 @@ class View:
     env = Environment()
     env.loader = FileSystemLoader(TEMPLATES_FOLDER)
 
+    @staticmethod
+    def process_post(request) -> dict:
+        content_length_data = request.environ.get('CONTENT_LENGTH')
+        content_length = int(content_length_data) if content_length_data else 0
+        data = request.environ['wsgi.input'].read(content_length) \
+            if content_length > 0 else b''
+        data = data.decode('utf-8').split('=')
+        return {data[0]: data[1].strip()}
+
     def get(self, request):
         return
 
@@ -35,6 +44,8 @@ class AboutView(View):
 
 
 class CategoriesView(View):
+    template = View.env.get_template('categories.html')
+
     def get(self, request):
         query_params = request.get_query_params()
         category_name = query_params.get('category')
@@ -45,14 +56,13 @@ class CategoriesView(View):
         return Response('200 OK', template.render({'categories': categories}))
 
     def post(self, request):
-        content_length_data = request.environ.get('CONTENT_LENGTH')
-        content_length = int(content_length_data) if content_length_data else 0
-        data = request.environ['wsgi.input'].read(content_length)\
-            if content_length > 0 else b''
-        with open('user_data', 'w') as f:
-            f.write(data.decode('utf-8'))
-        return Response('201 OK', 'Form submitted')
-
+        data = self.process_post(request)
+        for k, v in data.values():
+            if k == 'delete':
+                Category(v).delete()
+        categories = Category.list_all()
+        return Response('200 OK', self.template.render(
+            {'categories': categories}))
 
 
 class AskView(View):
