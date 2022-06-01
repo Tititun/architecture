@@ -1,5 +1,6 @@
 import os
 from .response import Response
+from .entities import Category, Course
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
 
@@ -31,6 +32,13 @@ class AboutView(View):
     def get(self, request):
         template = self.env.get_template('about.html')
         return Response('200 OK', template.render())
+
+
+class CategoriesView(View):
+    def get(self, request):
+        template = self.env.get_template('categories.html')
+        categories = Category.list_all()
+        return Response('200 OK', template.render({'categories': categories}))
 
 
 class AskView(View):
