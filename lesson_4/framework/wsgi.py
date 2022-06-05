@@ -11,12 +11,13 @@ class Framework:
         request = Request(environ)
         view = self.get_view(request)
         response = self.get_response(request, view)
-        start_response(response.status, [('Content-Type', 'text/html')])
+        start_response(response.status, [
+            ('Content-Type', 'text/html; charset=utf-8')])
 
         return [response.body.encode('utf-8')]
 
     def get_view(self, request: Request):
-        path = request.path
+        path = request.base_url
         for url in self.urls:
             if url.path == path:
                 return url.view

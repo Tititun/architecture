@@ -1,6 +1,7 @@
 import os
 import sqlite3
 from abc import ABC, abstractmethod
+from typing import Union
 import traceback
 
 DB_PATH = os.path.join(os.path.dirname(__file__), 'mydb.db')
@@ -45,6 +46,10 @@ class EducationServise(ABC):
 
     @abstractmethod
     def delete(self):
+        pass
+
+    @abstractmethod
+    def update(self):
         pass
 
     @staticmethod
@@ -97,12 +102,32 @@ class Category(EducationServise):
 
 class Course(EducationServise):
 
-    def __init__(self, name: str, category_id: int, is_online: bool = True,
-                 address: str = None):
-        self.name = name
-        self.category_id = category_id
-        self.is_online = is_online
-        self.address = address
+    def __init__(self, name: Union[str, int] = '', category_id: int = None,
+                 is_online: bool = True, address: str = None,
+                 id:int = None):
+        if isinstance(name, int):
+            self.id = name
+            statement = 'SELECT * FROM courses WHERE id = :id'
+            params = {'id': name}
+            data, _ = execute(statement, params)
+            data = data[0]
+            self.name = data['name']
+            self.category_id = data['category_id']
+            self.is_online = data['is_online']
+            self.address = data['address']
+        else:
+            self.name = name
+            self.category_id = category_id
+            self.is_online = is_online
+            self.address = address
+            self.id = id
+
+    @classmethod
+    def get_course(cls, id_):
+        statement = 'SELECT * FROM courses where id = :id'
+        params = {'id': id_}
+        res, _ = execute(statement, params)
+        return Course(**res[0])
 
     def create(self):
         statement = 'INSERT INTO courses VALUES (NULL, :name, :is_online, '\
@@ -114,32 +139,45 @@ class Course(EducationServise):
                 'category_id': self.category_id
                 }
         execute(statement, params)
+        statement = 'SELECT id FROM courses WHERE name = :name' \
+                    ' and category_id = :category_id'
+        id_, _ = execute(statement, params)
+        return int(id_[0]['id'])
 
     def delete(self):
-        statement = 'DELETE FROM courses WHERE name = :name and' \
-                    ' category_id = :category_id'
-        params = {
-                'name': self.name,
-                'category_id': self.category_id
-            }
+        statement = 'DELETE FROM courses WHERE id = :id'
+        params = {'id': self.id}
         execute(statement, params)
+
+    def update(self, **kwargs):
+        id_ = kwargs['id']
+        del kwargs['id']
+        for k, v in kwargs.items():
+            statement = f'UPDATE courses SET {k} = :value WHERE id = :id'
+            params = {
+                'value': v,
+                'id': id_
+            }
+            execute(statement, params)
 
     @staticmethod
     def list_all():
         statement = 'SELECT * FROM courses'
         res, success = execute(statement)
         if success:
-            return [name[0] for name in res]
+            return res
         else:
             return f'Something went wrong. Error {res}'
 
 
 if __name__ == '__main__':
-    # init_db()
-    # # for category in ['правильное питание', 'спорт', 'просвещение']:
-    # #     Category(category).create()
-    #
-    # for course in ['плавание', 'бег', 'ходьба']:
-    #     Course(course, 2).create()
-    cat = Category(1)
-    print(cat.name)
+    init_db()
+    for category in ['правильное питание', 'спорт', 'просвещение']:
+        Category(category).create()
+    for course in ['подсчет калорий', 'вегетарианство']:
+        Course(course, 1).create()
+    for course in ['плавание', 'бег', 'ходьба']:
+        Course(course, 2).create()
+    for course in ['чтение', 'мудрость']:
+        Course(course, 3).create()
+
