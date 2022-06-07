@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>Edit course{{ course.name }}</title>
+{% endblock %}
+
+{% block content %}
+   <div class="container">
+  {% if success_message != '' %}
+    <div class="row alert alert-success" role="alert">
+      {{ success_message }}
+    </div>
+    <br>
+  {% endif %}
+  <div class="row">
+  <form action="/course_edit" method="POST">
+    <div class="form-row">
+    <label for="course_name">Name:</label>
+    <input type="text" class="form-control" id="course_name" name="course_name" value="{{ course.name }}"><br>
+    </div>
+    <div class="form-row">
+    <label for="course_address">Address:</label>
+    <input type="text" class="form-control" id="course_name" name="course_address"
+           value="{% if course.address %}{{ course.address }}{% else %}-{% endif %}">
+    </div>
+    <div class="form-row ml-3 mt-1">
+    <input class="form-check-input" name="is_online" type="checkbox" value="{{ course.is_online }}" id="is_online"
+    {% if course.is_online %} checked {% endif %}>
+    <label for="is_online">
+        Online
+    </label>
+    </div>
+    <input type="hidden" id="course_id" name="course_id" value="{{ course.id }}">
+    <input type="hidden" id="category_id" name="category_id" value="{{ course.category_id }}">
+    <br>
+    <p>
+    <input type="submit" class="btn btn-primary" name="submit_type" value="edit">
+    <input type="submit" class="btn btn-warning" name="submit_type" value="copy">
+    <input type="submit" class="btn btn-danger" name="submit_type" value="delete">
+    </p>
+  </form>
+  </div>
+  </div>
+{% endblock %}

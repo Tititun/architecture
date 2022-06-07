@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>{{ course.name }}</title>
+{% endblock %}
+
+{% block content %}
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th scope="col"></th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Name</th>
+          <td>{{ course.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Type</th>
+          <td>
+              {% if course.is_online %}
+                Online
+              {% else %}
+                Offline
+              {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Address</th>
+          <td colspan="2">
+              {% if course.address %}
+              {{ course.address }}
+              {% else %}
+                -
+              {% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <a class="btn btn-primary" href="/course_edit?id={{ course.id }}">Edit</a>
+{% endblock %}

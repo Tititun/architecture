@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>Courses</title>
+{% endblock %}
+
+{% block content %}
+<div class="container pt-1">
+  <div class="row">
+    <div class="col-4">
+        {% for category in categories %}
+        <div class="dropdown my-2 d-flex justify-content-end">
+          <button class="btn btn-info dropdown-toggle w-75" type="button" id="{{ category.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+              {{ category.name}}
+          </button>
+          <ul class="dropdown-menu w-75" aria-labelledby="{{ category.id }}">
+              {% for course in courses %}
+                  {% if course.category_id == category.id %}
+                    <li><a class="dropdown-item" href="/course?id={{ course.id }}">{{ course.name }}</a></li>
+                  {% endif %}
+              {% endfor %}
+              <div class="dropdown-divider"></div>
+              <li><a class="dropdown-item edit bg-success" href="/category_edit?action=edit&id={{ category.id }}"><i>edit {{ category.name }}</i></a></li>
+          </ul>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="col-8">
+      <div class="mt-2">
+      <p>Our wonderful ZOZH educational courses for everyone!</p>
+      <p>Choose an educational program you like.</p>
+    </div>
+  </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

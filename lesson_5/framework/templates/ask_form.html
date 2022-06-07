@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>Ask a question</title>
+{% endblock %}
+
+{% block content %}
+  <form method="POST">
+    <label for="subject">Subject:</label><br>
+    <input type="text" id="subject" name="subject"><br>
+
+    <label for="text">Text:</label><br>
+    <input type="text" id="text" name="text" style="width: 200px; height: 200px"><br>
+
+    <label for="email">Email:</label><br>
+    <input type="text" id="email" name="email">
+    <p>
+    <input type="submit">
+    </p>
+  </form>
+{% endblock %}
