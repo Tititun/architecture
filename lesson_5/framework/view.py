@@ -8,6 +8,16 @@ from urllib.parse import unquote
 
 TEMPLATES_FOLDER = os.path.join(os.path.dirname(__file__), 'templates')
 
+URLS = []
+def register(url):
+    def decorator(f):
+        URLS.append((url, f))
+        def wrapper(*args, **kwargs):
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
 
 class View:
     env = Environment()
@@ -32,6 +42,7 @@ class View:
         return
 
 
+@register('/')
 class HomeView(View):
     def get(self, request):
         template = self.env.get_template('base.html')
@@ -42,12 +53,13 @@ class HomeView(View):
         return Response('200 OK', template.render({'request_type': 'POST'}))
 
 
+@register('/about')
 class AboutView(View):
     def get(self, request):
         template = self.env.get_template('about.html')
         return Response('200 OK', template.render())
 
-
+@register('/categories')
 class CategoriesView(View):
     template = View.env.get_template('categories.html')
 
@@ -76,6 +88,7 @@ class CategoriesView(View):
             {'categories': categories}))
 
 
+@register('/category_edit')
 class CategoryEdit(View):
     def get(self, request: Request):
         params = request.get_query_params()
@@ -106,7 +119,7 @@ class CategoryEdit(View):
 
         return Response('400 ERROR', 'Something went wrong')
 
-
+@register('/course')
 class CourseView(View):
     def get(self, request: Request):
         params = request.query_params
@@ -118,7 +131,7 @@ class CourseView(View):
                             {'course': course.__dict__}
                         ))
 
-
+@register('/course_edit')
 class CourseEdit(View):
     def get(self, request: Request):
         params = request.query_params

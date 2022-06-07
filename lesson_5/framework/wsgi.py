@@ -2,12 +2,13 @@ from .request import Request
 from .response import Response
 from .view import View
 from .logger import Logger
+from.url import Url
 
 logger = Logger('wsgi')
 
 class Framework:
     def __init__(self, urls):
-        self.urls = urls
+        self.urls = [Url(url[0], url[1]) for url in urls]
 
     def __call__(self, environ, start_response):
         request = Request(environ)
