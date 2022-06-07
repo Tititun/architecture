@@ -1,7 +1,9 @@
 from .request import Request
 from .response import Response
 from .view import View
+from .logger import Logger
 
+logger = Logger('wsgi')
 
 class Framework:
     def __init__(self, urls):
@@ -11,12 +13,15 @@ class Framework:
         request = Request(environ)
         view = self.get_view(request)
         response = self.get_response(request, view)
-        start_response(response.status, [('Content-Type', 'text/html')])
+        logger.write(f'Served page {request.path}'
+                     f' with status {response.status}')
+        start_response(response.status, [
+            ('Content-Type', 'text/html; charset=utf-8')])
 
         return [response.body.encode('utf-8')]
 
     def get_view(self, request: Request):
-        path = request.path
+        path = request.base_url
         for url in self.urls:
             if url.path == path:
                 return url.view
