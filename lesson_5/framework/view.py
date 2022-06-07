@@ -1,4 +1,5 @@
 import os
+import datetime
 from .response import Response
 from .request import Request, get_request_redirect
 from .entities import Category, Course
@@ -9,6 +10,8 @@ from urllib.parse import unquote
 TEMPLATES_FOLDER = os.path.join(os.path.dirname(__file__), 'templates')
 
 URLS = []
+
+
 def register(url):
     def decorator(f):
         URLS.append((url, f))
@@ -16,6 +19,13 @@ def register(url):
             return f(*args, **kwargs)
         return wrapper
     return decorator
+
+
+def debug(f):
+    def wrapper(*args, **kwargs):
+        print(f'[{datetime.datetime.now()}] function {f.__qualname__} called.')
+        return f(*args, **kwargs)
+    return wrapper
 
 
 
@@ -44,6 +54,7 @@ class View:
 
 @register('/')
 class HomeView(View):
+    @debug
     def get(self, request):
         template = self.env.get_template('base.html')
         return Response('200 OK', template.render({'request_type': 'GET'}))
