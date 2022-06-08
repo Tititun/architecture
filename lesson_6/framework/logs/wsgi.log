@@ -1,0 +1,6 @@
+[2022-06-05 11:08:08.534494] [wsgi] [Served page /about with status 200 OK]
+[2022-06-05 11:08:09.299750] [wsgi] [Served page /favicon.ico with status 400 ERROR]
+[2022-06-05 11:08:10.218675] [wsgi] [Served page / with status 200 OK]
+[2022-06-05 11:08:10.549726] [wsgi] [Served page /favicon.ico with status 400 ERROR]
+[2022-06-05 11:08:11.671356] [wsgi] [Served page /categories with status 200 OK]
+[2022-06-05 11:08:12.192309] [wsgi] [Served page /favicon.ico with status 400 ERROR]
