@@ -1,42 +1,8 @@
-import os
-import sqlite3
+import datetime
 from abc import ABC, abstractmethod
 from typing import Union
-import traceback
+from sql import execute, init_db
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'mydb.db')
-
-def execute(statement: str, params: dict = None) -> (str, bool):
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    try:
-        cursor.execute(statement, params if params else {})
-        res = [dict(r) for r in cursor.fetchall()]
-        conn.commit()
-        return res, True
-    except:
-        print(traceback.format_exc())
-        return traceback.format_exc(), False
-    finally:
-        cursor.close()
-        conn.close()
-
-
-def init_db():
-    execute('CREATE TABLE IF NOT EXISTS categories'
-            '(id INTEGER PRIMARY KEY,'
-            'name VARCHAR NOT NULL,'
-            'UNIQUE (name));')
-    execute('CREATE TABLE IF NOT EXISTS courses'
-            '(id INTEGER PRIMARY KEY,'
-            'name VARCHAR NOT NULL,'
-            'is_online BOOLEAN NOT NULL,'
-            'address VARCHAR,'
-            'category_id INTEGER NOT NULL,'
-            'UNIQUE (name, category_id),'
-            'FOREIGN KEY (category_id) REFERENCES categories(id)'
-            ' ON DELETE CASCADE);')
 
 class EducationServise(ABC):
 
@@ -169,6 +135,22 @@ class Course(EducationServise):
         else:
             return f'Something went wrong. Error {res}'
 
+
+class Student:
+    def __int__(self, name: str, date_of_birth: datetime.date, id=None):
+        self.name = name
+        self.date_of_birth = date_of_birth
+        self.id = id if id else self.fetch_id()
+
+    def fetch_id(self):
+        res, succsess = execute('SELECT id FROM users WHERE name = :name',
+                                params={'name': self.name})
+        return res[0]['id'] if succsess else None
+
+    @staticmethod
+    def list_all():
+        statement = 'SELECT * FROM users'
+        return execute(statement)[0]
 
 if __name__ == '__main__':
     init_db()
