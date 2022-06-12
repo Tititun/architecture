@@ -57,12 +57,16 @@ class HomeView(View):
     @debug
     def get(self, request):
         template = self.env.get_template('base.html')
+        context = {'request_type': 'GET'}
+        context.update(request.cookies)
         return Response('200 OK',
-                        template.render({'request_type': 'GET'}), {})
+                        template.render(context), {})
 
     def post(self, request):
         template = self.env.get_template('base.html')
-        return Response('200 OK', template.render({'request_type': 'POST'}),
+        context = {'request_type': 'POST'}
+        context.update(request.cookies)
+        return Response('200 OK', template.render(context),
                         {})
 
 
@@ -70,7 +74,7 @@ class HomeView(View):
 class AboutView(View):
     def get(self, request):
         template = self.env.get_template('about.html')
-        return Response('200 OK', template.render(), {})
+        return Response('200 OK', template.render(request.cookies), {})
 
 @register('/categories')
 class CategoriesView(View):
@@ -80,25 +84,24 @@ class CategoriesView(View):
         template = self.env.get_template('categories.html')
         categories = Category.list_all()
         courses = Course.list_all()
-        return Response('200 OK', template.render({'categories': categories,
-                                                   'courses': courses}), {})
+        context = {'categories': categories, 'courses': courses}
+        context.update(request.cookies)
+        return Response('200 OK', template.render(context), {})
 
     def post(self, request):
         data = self.process_post(request)
+        context = request.cookies
         for k, v in data.items():
             if k == 'delete':
                 Category(int(v)).delete()
             elif k == 'edit':
-
                 template = View.env.get_template('category_form.html')
-
-                return Response('200 OK', template.render(
-                                {'category': Category(int(v)).__dict__,
-                                 'success_message': ''}, {})
-                                )
+                context.update( {'category': Category(int(v)).__dict__,
+                                 'success_message': ''})
+                return Response('200 OK', template.render(context), {})
         categories = Category.list_all()
-        return Response('200 OK', self.template.render(
-            {'categories': categories}), {})
+        context.update({'categories': categories})
+        return Response('200 OK', self.template.render(context), {})
 
 
 @register('/category_edit')
@@ -109,9 +112,10 @@ class CategoryEdit(View):
         id_ = params['id']
         if action == 'edit':
             template = View.env.get_template('category_form.html')
-            return Response('200 OK', template.render(
-                {'category': Category(int(id_)).__dict__,
-                 'success_message': ''}), {})
+            context = {'category': Category(int(id_)).__dict__,
+                 'success_message': ''}
+            context.update(request.cookies)
+            return Response('200 OK', template.render(context), {})
 
     def post(self, request):
         template = View.env.get_template('category_form.html')
@@ -119,13 +123,14 @@ class CategoryEdit(View):
         name = query_params.get('category_name')
         id_ = int(query_params.get('category_id'))
         submit = query_params['submit_type']
+        context = request.cookies
         if submit == 'edit':
             success = Category(id_).update(name)
             if success:
-                return Response('200 OK', template.render(
-                    {'category': Category(name).__dict__,
-                     'success_message':
-                         'Name has been changed successfully!'}), {})
+                context.update({'category': Category(name).__dict__,
+                                'success_message':
+                                'Name has been changed successfully!'})
+                return Response('200 OK', template.render(context), {})
 
         elif submit == 'delete':
             Category(id_).delete()
@@ -140,10 +145,10 @@ class CourseView(View):
         id_ = params['id']
         course = Course.get_course(id_)
         template = View.env.get_template('course.html')
+        context = request.cookies
+        context.update({'course': course.__dict__})
         return Response('200 OK',
-                        template.render(
-                            {'course': course.__dict__}, {}
-                        ))
+                        template.render(context), {})
 
 @register('/course_edit')
 class CourseEdit(View):
@@ -151,12 +156,10 @@ class CourseEdit(View):
         params = request.query_params
         id_ = params['id']
         template = View.env.get_template('course_form.html')
-        return Response('200 OK',
-                        template.render(
-                            {'course': Course(int(id_)).__dict__,
-                             'success_message': ''}
-                            ), {}
-                        )
+        context = request.cookies
+        context.update({'course': Course(int(id_)).__dict__,
+                             'success_message': ''})
+        return Response('200 OK', template.render(context), {})
     def post(self, request):
         query_params = self.process_post(request)
         name = query_params.get('course_name')

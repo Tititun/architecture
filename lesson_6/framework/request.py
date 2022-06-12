@@ -7,6 +7,7 @@ class Request:
         self.path = environ['RAW_URI'].lower().split('?')[0]
         self.base_url = re.match(r'/[^/]*', self.path).group()
         self.query_params = params if params else self.get_query_params()
+        self.cookies = self.get_cookies()
         self.headers = self.get_headers()
 
     def get_headers(self) -> dict:
@@ -22,6 +23,16 @@ class Request:
                 key, value = pair.split('=')
                 params[key] = value
         return params
+
+    def get_cookies(self):
+        qs = self.environ.get('HTTP_COOKIE')
+        cookies = {}
+        if qs:
+            pairs = qs.split(';')
+            for pair in pairs:
+                key, value = pair.strip().split('=')
+                cookies[key] = value
+        return cookies
 
 
 def get_request_redirect(view, request, method, params):

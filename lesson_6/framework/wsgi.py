@@ -1,4 +1,5 @@
 from pprint import pprint
+from .entities import Student
 from .request import Request
 from .response import Response
 from .view import View
@@ -18,8 +19,14 @@ class Framework:
         response = self.get_response(request, view)
         logger.write(f'Served page {request.path}'
                      f' with status {response.status}')
-        start_response(response.status, [
-            ('Content-Type', 'text/html; charset=utf-8')])
+        headers = [('Content-Type', 'text/html; charset=utf-8')]
+        if response.header:
+            for k, v in response.header.items():
+                headers.append((k, v))
+        if id_ := request.cookies.get('user_id'):
+            user = Student.fetch_user_by_id(id_)
+            request.cookies['user'] = user
+        start_response(response.status, headers)
 
         return [response.body.encode('utf-8')]
 
