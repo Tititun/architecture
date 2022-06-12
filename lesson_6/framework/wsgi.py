@@ -28,13 +28,13 @@ class Framework:
         for url in self.urls:
             if url.path == path:
                 return url.view
-        return Response('404 ERROR', 'page not found')
+        return Response('404 ERROR', 'page not found', {})
 
     @staticmethod
     def get_response(request: Request, view: View) -> Response:
         if hasattr(view, request.method):
             return getattr(view, request.method)(view, request)
-        return Response('400 ERROR', 'method not supported')
+        return Response('400 ERROR', 'method not supported', {})
 
 
 class LoggingFramework(Framework):
@@ -48,5 +48,5 @@ class LoggingFramework(Framework):
 
 class FakeFramework(Framework):
     def __call__(self, environ, start_response):
-        response = Response('200 OK', 'Hello from Fake')
+        response = Response('200 OK', 'Hello from Fake', {})
         return [response.body.encode('utf-8')]

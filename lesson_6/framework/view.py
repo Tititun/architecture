@@ -57,18 +57,20 @@ class HomeView(View):
     @debug
     def get(self, request):
         template = self.env.get_template('base.html')
-        return Response('200 OK', template.render({'request_type': 'GET'}))
+        return Response('200 OK',
+                        template.render({'request_type': 'GET'}), {})
 
     def post(self, request):
         template = self.env.get_template('base.html')
-        return Response('200 OK', template.render({'request_type': 'POST'}))
+        return Response('200 OK', template.render({'request_type': 'POST'}),
+                        {})
 
 
 @register('/about')
 class AboutView(View):
     def get(self, request):
         template = self.env.get_template('about.html')
-        return Response('200 OK', template.render())
+        return Response('200 OK', template.render(), {})
 
 @register('/categories')
 class CategoriesView(View):
@@ -79,7 +81,7 @@ class CategoriesView(View):
         categories = Category.list_all()
         courses = Course.list_all()
         return Response('200 OK', template.render({'categories': categories,
-                                                   'courses': courses}))
+                                                   'courses': courses}), {})
 
     def post(self, request):
         data = self.process_post(request)
@@ -92,11 +94,11 @@ class CategoriesView(View):
 
                 return Response('200 OK', template.render(
                                 {'category': Category(int(v)).__dict__,
-                                 'success_message': ''})
+                                 'success_message': ''}, {})
                                 )
         categories = Category.list_all()
         return Response('200 OK', self.template.render(
-            {'categories': categories}))
+            {'categories': categories}), {})
 
 
 @register('/category_edit')
@@ -109,7 +111,7 @@ class CategoryEdit(View):
             template = View.env.get_template('category_form.html')
             return Response('200 OK', template.render(
                 {'category': Category(int(id_)).__dict__,
-                 'success_message': ''}))
+                 'success_message': ''}), {})
 
     def post(self, request):
         template = View.env.get_template('category_form.html')
@@ -122,13 +124,14 @@ class CategoryEdit(View):
             if success:
                 return Response('200 OK', template.render(
                     {'category': Category(name).__dict__,
-                     'success_message': 'Name has been changed successfully!'}))
+                     'success_message':
+                         'Name has been changed successfully!'}), {})
 
         elif submit == 'delete':
             Category(id_).delete()
             return CategoriesView().get(request)
 
-        return Response('400 ERROR', 'Something went wrong')
+        return Response('400 ERROR', 'Something went wrong', {})
 
 @register('/course')
 class CourseView(View):
@@ -139,7 +142,7 @@ class CourseView(View):
         template = View.env.get_template('course.html')
         return Response('200 OK',
                         template.render(
-                            {'course': course.__dict__}
+                            {'course': course.__dict__}, {}
                         ))
 
 @register('/course_edit')
@@ -152,7 +155,7 @@ class CourseEdit(View):
                         template.render(
                             {'course': Course(int(id_)).__dict__,
                              'success_message': ''}
-                            )
+                            ), {}
                         )
     def post(self, request):
         query_params = self.process_post(request)
@@ -184,4 +187,4 @@ class CourseEdit(View):
             Course(id_).delete()
             return CategoriesView().get(request)
 
-        return Response('400 ERROR', 'Something went wrong')
+        return Response('400 ERROR', 'Something went wrong', {})

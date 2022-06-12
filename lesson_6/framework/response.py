@@ -5,3 +5,4 @@ from dataclasses import dataclass
 class Response:
     status: str
     body: str
+    header: dict

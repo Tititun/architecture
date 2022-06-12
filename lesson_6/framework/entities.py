@@ -1,7 +1,7 @@
 import datetime
 from abc import ABC, abstractmethod
 from typing import Union
-from sql import execute, init_db
+from .sql import execute, init_db
 
 
 class EducationServise(ABC):
@@ -143,9 +143,9 @@ class Student:
         self.id = id if id else self.fetch_id()
 
     def fetch_id(self):
-        res, succsess = execute('SELECT id FROM users WHERE name = :name',
+        res, success = execute('SELECT id FROM users WHERE name = :name',
                                 params={'name': self.name})
-        return res[0]['id'] if succsess else None
+        return res[0]['id'] if success else None
 
     @staticmethod
     def list_all():
