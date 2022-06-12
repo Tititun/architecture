@@ -148,6 +148,12 @@ class Student:
         return res[0]['id'] if success else None
 
     @staticmethod
+    def fetch_user_by_id(id_):
+        res, _ = execute('SELECT * FROM users WHERE id = :id',
+                                params={'id': id_})
+        return res[0]
+
+    @staticmethod
     def list_all():
         statement = 'SELECT * FROM users'
         return execute(statement)[0]
