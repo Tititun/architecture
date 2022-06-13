@@ -137,26 +137,42 @@ class Course(EducationServise):
 
 
 class Student:
-    def __int__(self, name: str, date_of_birth: datetime.date, id=None):
+    def __init__(self, name: str, id=None):
         self.name = name
-        self.date_of_birth = date_of_birth
         self.id = id if id else self.fetch_id()
 
     def fetch_id(self):
         res, success = execute('SELECT id FROM users WHERE name = :name',
                                 params={'name': self.name})
-        return res[0]['id'] if success else None
+        return res[0]['id'] if res else None
+
+    def create(self):
+        statement = 'INSERT INTO users VALUES (NULL, :name)'
+        params = {'name': self.name}
+        execute(statement, params)
+        self.id = self.fetch_id()
+        return self
 
     @staticmethod
     def fetch_user_by_id(id_):
         res, _ = execute('SELECT * FROM users WHERE id = :id',
                                 params={'id': id_})
-        return res[0]
+        return Student(name=res[0]['name'], id=res[0]['id'])
+
+    @staticmethod
+    def fetch_user_by_name(name):
+        res, _ = execute('SELECT * FROM users WHERE name = :name',
+                         params={'name': name})
+        if not res:
+            return
+        else:
+            return Student(name)
 
     @staticmethod
     def list_all():
         statement = 'SELECT * FROM users'
         return execute(statement)[0]
+
 
 if __name__ == '__main__':
     init_db()
@@ -168,4 +184,3 @@ if __name__ == '__main__':
         Course(course, 2).create()
     for course in ['чтение', 'мудрость']:
         Course(course, 3).create()
-

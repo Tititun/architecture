@@ -2,7 +2,7 @@ import os
 import datetime
 from .response import Response
 from .request import Request, get_request_redirect
-from .entities import Category, Course
+from .entities import Category, Course, Student
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
 from urllib.parse import unquote
@@ -191,3 +191,35 @@ class CourseEdit(View):
             return CategoriesView().get(request)
 
         return Response('400 ERROR', 'Something went wrong', {})
+
+
+@register('/login')
+class LoginView(View):
+    def get(self, request: Request):
+        if request.cookies.get('user_id'):
+            template = View.env.get_template('base.html')
+            return Response('200 OK', template.render({}),
+                            {'Set-Cookie': 'user_id='})
+        template = View.env.get_template('login_form.html')
+        context = request.cookies
+        return Response('200 OK', template.render(context), {})
+
+    def post(self, request: Request):
+        query_params = self.process_post(request)
+        submit = query_params['submit_type']
+        if submit == 'register':
+            name = query_params['register_name']
+            student = Student(name).create()
+            template = self.env.get_template('base.html')
+            return Response('200 OK', template.render({}),
+                            {'Set-Cookie': f'user_id={student.id}'})
+        elif submit == 'Log+in':
+            name = query_params['login_name']
+            student = Student.fetch_user_by_name(name)
+            if not student:
+                return Response('404, NOT_FOUND', 'User with this'
+                                                  ' name doesn\'t exist', {})
+            else:
+                template = self.env.get_template('base.html')
+                return Response('200 OK', template.render({}),
+                                {'Set-Cookie': f'user_id={student.id}'})

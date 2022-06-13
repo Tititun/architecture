@@ -15,6 +15,9 @@ class Framework:
 
     def __call__(self, environ, start_response):
         request = Request(environ)
+        if id_ := request.cookies.get('user_id'):
+            user = Student.fetch_user_by_id(id_)
+            request.cookies['user'] = user.__dict__
         view = self.get_view(request)
         response = self.get_response(request, view)
         logger.write(f'Served page {request.path}'
@@ -23,9 +26,6 @@ class Framework:
         if response.header:
             for k, v in response.header.items():
                 headers.append((k, v))
-        if id_ := request.cookies.get('user_id'):
-            user = Student.fetch_user_by_id(id_)
-            request.cookies['user'] = user
         start_response(response.status, headers)
 
         return [response.body.encode('utf-8')]

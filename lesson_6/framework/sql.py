@@ -42,7 +42,6 @@ init_courses = 'CREATE TABLE IF NOT EXISTS courses (id INTEGER PRIMARY KEY,' \
 init_users = """CREATE TABLE IF NOT EXISTS users (
                 id integer PRIMARY KEY,
                 name VARCHAR NOT NULL,
-                date_of_birth TEXT,
                 UNIQUE(name)
             );"""
 
