@@ -5,7 +5,7 @@ from jinja2.environment import Environment
 from urllib.parse import unquote
 from .response import Response
 from .request import Request, get_request_redirect
-from .entities import Category, Course, Student, CategoryMapper
+from .entities import UnitOfWork, Course, Student, CategoryMapper
 from .validators import StudentCourse
 
 TEMPLATES_FOLDER = os.path.join(os.path.dirname(__file__), 'templates')
@@ -128,9 +128,12 @@ class CategoryEdit(View):
         context = request.cookies
         category = CategoryMapper.fetch_by_id(id_)
         if submit == 'edit':
+            UnitOfWork.new_current()
             category.name = name
-            success = CategoryMapper.update(category)
-            if success:
+            category.mark_dirty()
+            UnitOfWork.get_current().commit()
+            UnitOfWork.set_current(None)
+            if True:
                 context.update({'category': category.__dict__,
                                 'success_message':
                                 'Name has been changed successfully!'})
