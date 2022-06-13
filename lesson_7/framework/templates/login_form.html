@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>Log in</title>
+{% endblock %}
+
+{% block content %}
+   <form action="/login" method="POST">
+        <div class="form-row">
+        <label for="login_name">Name:</label>
+        <input type="text" class="form-control" id="login_name" name="login_name"
+               value="">
+        </div>
+      <input type="submit" class="btn btn-primary mt-1" name="submit_type" value="Log in">
+      <div class="form-row">
+        <label for="register_name">Name:</label>
+        <input type="text" class="form-control" id="register_name" name="register_name"
+               value="">
+        </div>
+      <input type="submit" class="btn btn-primary mt-1" name="submit_type" value="register">
+   </form>
+{% endblock %}
