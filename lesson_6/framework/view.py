@@ -223,3 +223,12 @@ class LoginView(View):
                 template = self.env.get_template('base.html')
                 return Response('200 OK', template.render({}),
                                 {'Set-Cookie': f'user_id={student.id}'})
+
+
+@register('/list_students')
+class ListStudents(View):
+    def get(self, request: Request):
+        context = request.cookies
+        template = View.env.get_template('list_students.html')
+        context.update({'students': Student.list_all()})
+        return Response('200 OK', template.render(context), {})
