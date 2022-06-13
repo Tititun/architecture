@@ -1,11 +1,12 @@
 import os
 import datetime
-from .response import Response
-from .request import Request, get_request_redirect
-from .entities import Category, Course, Student
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
 from urllib.parse import unquote
+from .response import Response
+from .request import Request, get_request_redirect
+from .entities import Category, Course, Student
+from .validators import StudentCourse
 
 TEMPLATES_FOLDER = os.path.join(os.path.dirname(__file__), 'templates')
 
@@ -146,9 +147,37 @@ class CourseView(View):
         course = Course.get_course(id_)
         template = View.env.get_template('course.html')
         context = request.cookies
-        context.update({'course': course.__dict__})
+        if student_id := context.get('user_id'):
+            is_enlisted = StudentCourse(student_id, id_).is_enlisted()
+        else:
+            is_enlisted = False
+        context.update({'course': course.__dict__,
+                        'is_enlisted': is_enlisted})
         return Response('200 OK',
                         template.render(context), {})
+
+    def post(self, request):
+        course_id = request.query_params['id']
+        context = request.cookies
+        student_id = context.get('user_id')
+        params = self.process_post(request)
+        sumbit = params.get('submit_type')
+        validator = StudentCourse(student_id, course_id)
+        if sumbit == 'Enroll':
+            success = validator.register_student()
+            if success:
+                return get_request_redirect(CourseView, request, 'get',
+                                            {}, cookies=request.cookies)
+            else:
+                return Response('200 OK',
+                                'Maximum of 10 students for this course'
+                                ' is reached', {})
+        elif sumbit == 'Deregister':
+            validator.deregister_student()
+            return get_request_redirect(CourseView, request, 'get',
+                                        {}, cookies=request.cookies)
+
+
 
 @register('/course_edit')
 class CourseEdit(View):

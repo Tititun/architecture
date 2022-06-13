@@ -1,13 +1,13 @@
 import re
 
 class Request:
-    def __init__(self, environ: dict,  params=None):
+    def __init__(self, environ: dict,  params=None, cookies=None):
         self.environ = environ
         self.method = environ['REQUEST_METHOD'].lower()
         self.path = environ['RAW_URI'].lower().split('?')[0]
         self.base_url = re.match(r'/[^/]*', self.path).group()
         self.query_params = params if params else self.get_query_params()
-        self.cookies = self.get_cookies()
+        self.cookies = cookies if cookies else self.get_cookies()
         self.headers = self.get_headers()
 
     def get_headers(self) -> dict:
@@ -35,8 +35,8 @@ class Request:
         return cookies
 
 
-def get_request_redirect(view, request, method, params):
+def get_request_redirect(view, request, method, params, cookies=None):
     request.environ['REQUEST_METHOD'] = method
-    request = Request(request.environ, params=params)
+    request = Request(request.environ, params=params, cookies=cookies)
     view = view()
     return getattr(view, method)(request)
