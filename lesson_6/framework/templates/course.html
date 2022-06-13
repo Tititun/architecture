@@ -5,6 +5,12 @@
 {% endblock %}
 
 {% block content %}
+    {% if success_message %}
+    <div class="row alert alert-success" role="alert">
+      {{ success_message }}
+    </div>
+    <br>
+   {% endif %}
     <table class="table table-sm">
       <thead>
         <tr>
@@ -40,4 +46,14 @@
       </tbody>
     </table>
     <a class="btn btn-primary" href="/course_edit?id={{ course.id }}">Edit</a>
+    {% if user %}
+        <form action="/course?id={{ course.id }}", method="post">
+        <input type="hidden" id="course_id" name="course_id" value="{{ course.id }}">
+        {% if is_enlisted %}
+            <input type="submit" class="ml-1 btn btn-danger" name="submit_type" value="Deregister">
+        {% else %}
+            <input type="submit" class="ml-1 btn btn-warning" name="submit_type" value="Enroll">
+        {% endif %}
+        </form>
+    {% endif %}
 {% endblock %}
