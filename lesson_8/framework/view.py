@@ -7,28 +7,9 @@ from .response import Response
 from .request import Request, get_request_redirect
 from .entities import UnitOfWork, Course, Student, CategoryMapper
 from .validators import StudentCourse
+from .decorators import URLS, register, debug
 
 TEMPLATES_FOLDER = os.path.join(os.path.dirname(__file__), 'templates')
-
-URLS = []
-
-
-def register(url):
-    def decorator(f):
-        URLS.append((url, f))
-        def wrapper(*args, **kwargs):
-            return f(*args, **kwargs)
-        return wrapper
-    return decorator
-
-
-def debug(f):
-    def wrapper(*args, **kwargs):
-        print(f'[{datetime.datetime.now()}] function {f.__qualname__} called.')
-        return f(*args, **kwargs)
-    return wrapper
-
-
 
 class View:
     env = Environment()
@@ -76,6 +57,7 @@ class AboutView(View):
     def get(self, request):
         template = self.env.get_template('about.html')
         return Response('200 OK', template.render(request.cookies), {})
+
 
 @register('/categories')
 class CategoriesView(View):
@@ -183,7 +165,6 @@ class CourseView(View):
             validator.deregister_student()
             return get_request_redirect(CourseView, request, 'get',
                                         {}, cookies=request.cookies)
-
 
 
 @register('/course_edit')
