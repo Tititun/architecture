@@ -6,6 +6,7 @@ class StudentCourse:
     def __init__(self, student_id, course_id):
         self.student_id = student_id
         self.course_id = course_id
+        self.max_students_per_course = 10
 
     def count_enlisted(self):
         """counts how many students are enlisted for the course"""
@@ -28,7 +29,7 @@ class StudentCourse:
     def register_student(self):
         """registers the student for the course if it has available
         positions"""
-        if self.count_enlisted() >= 10:
+        if self.count_enlisted() >= self.max_students_per_course:
             return False
 
         statement = "INSERT INTO users_courses VALUES" \
