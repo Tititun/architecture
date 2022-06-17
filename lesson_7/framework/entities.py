@@ -1,4 +1,4 @@
-import datetime
+import threading
 from abc import ABC, abstractmethod
 from typing import Union
 from .sql import execute, init_db
@@ -24,37 +24,113 @@ class EducationServise(ABC):
         pass
 
 
-class Category(EducationServise):
+class MapperRegistry:
+    @staticmethod
+    def get_mapper(obj):
+        if isinstance(obj, Category):
+            return CategoryMapper()
 
-    def __init__(self, name):
-        if isinstance(name, int):
-            self.id = name
-            statement = 'SELECT name FROM categories WHERE id = :id'
-            params = {'id': name}
-            name, _ = execute(statement, params)
-            self.name = name[0]['name']
-        else:
-            self.name = name
 
-    def create(self):
+class UnitOfWork:
+    current = threading.local()
+
+    def __init__(self):
+        self.new_objects = []
+        self.dirty_objects = []
+        self.removed_objects = []
+
+    def register_new(self, obj):
+        self.new_objects.append(obj)
+
+    def register_dirty(self, obj):
+        self.dirty_objects.append(obj)
+
+    def register_removed(self, obj):
+        self.removed_objects.append(obj)
+
+    def commit(self):
+        self.create_new()
+        self.update_dirty()
+        self.delete_removed()
+
+    def create_new(self):
+        for obj in self.new_objects:
+            MapperRegistry.get_mapper(obj).create(obj)
+
+    def update_dirty(self):
+        for obj in self.dirty_objects:
+            MapperRegistry.get_mapper(obj).update(obj)
+
+    def delete_removed(self):
+        for obj in self.removed_objects:
+            MapperRegistry.get_mapper(obj).delete(obj)
+
+    @staticmethod
+    def new_current():
+        __class__.set_current(UnitOfWork())
+
+    @classmethod
+    def set_current(cls, unit_of_work):
+        cls.current.unit_of_work = unit_of_work
+
+    @classmethod
+    def get_current(cls):
+        return cls.current.unit_of_work
+
+
+class DomainObject:
+    def mark_new(self):
+        UnitOfWork.get_current().register_new(self)
+
+    def mark_dirty(self):
+        UnitOfWork.get_current().register_dirty(self)
+
+    def mark_removed(self):
+        UnitOfWork.get_current().register_removed(self)
+
+
+class Category(DomainObject):
+
+    def __init__(self, name, id):
+        self.name = name
+        self.id = id
+
+
+class CategoryMapper:
+
+    def create(self, name):
         statement = 'INSERT INTO categories VALUES (NULL, :name)'
-        params = {'name': self.name}
+        params = {'name': name}
         execute(statement, params)
+        res, _ = execute('SELECT name, id FROM categories where name=:name',
+                         params)
+        return Category(res[0]['name'], res[0]['id'], params)
 
-    def delete(self):
+    @staticmethod
+    def delete(category):
         statement = 'DELETE FROM categories WHERE name = :name'
-        params = {'name': self.name}
+        params = {'name': category.name}
         execute(statement, params)
 
-    def update(self, name):
+    @staticmethod
+    def update(category):
         statement = 'UPDATE categories SET name = :new_name' \
-                    ' WHERE name = :old_name'
+                    ' WHERE id = :id'
         params = {
-            'new_name': name,
-            'old_name': self.name
+            'new_name': category.name,
+            'id': category.id
         }
-        _, success =execute(statement, params)
+        _, success = execute(statement, params)
         return success
+
+    @staticmethod
+    def fetch_by_id(id_):
+        statement = "SELECT name FROM categories where id=:id"
+        params = {'id': id_}
+        res, _ = execute(statement, params)
+        if res:
+            return Category(res[0]['name'], id_)
+
 
     @staticmethod
     def list_all():
@@ -177,7 +253,7 @@ class Student:
 if __name__ == '__main__':
     init_db()
     for category in ['правильное питание', 'спорт', 'просвещение']:
-        Category(category).create()
+        CategoryMapper.create(category)
     for course in ['подсчет калорий', 'вегетарианство']:
         Course(course, 1).create()
     for course in ['плавание', 'бег', 'ходьба']:

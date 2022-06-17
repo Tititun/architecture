@@ -5,7 +5,7 @@ from jinja2.environment import Environment
 from urllib.parse import unquote
 from .response import Response
 from .request import Request, get_request_redirect
-from .entities import Category, Course, Student
+from .entities import UnitOfWork, Course, Student, CategoryMapper
 from .validators import StudentCourse
 
 TEMPLATES_FOLDER = os.path.join(os.path.dirname(__file__), 'templates')
@@ -83,7 +83,7 @@ class CategoriesView(View):
 
     def get(self, request):
         template = self.env.get_template('categories.html')
-        categories = Category.list_all()
+        categories = CategoryMapper.list_all()
         courses = Course.list_all()
         context = {'categories': categories, 'courses': courses}
         context.update(request.cookies)
@@ -93,14 +93,15 @@ class CategoriesView(View):
         data = self.process_post(request)
         context = request.cookies
         for k, v in data.items():
+            category = CategoryMapper.fetch_by_id(int(v))
             if k == 'delete':
-                Category(int(v)).delete()
+                CategoryMapper.delete(category)
             elif k == 'edit':
                 template = View.env.get_template('category_form.html')
-                context.update( {'category': Category(int(v)).__dict__,
+                context.update( {'category': category.__dict__,
                                  'success_message': ''})
                 return Response('200 OK', template.render(context), {})
-        categories = Category.list_all()
+        categories = CategoryMapper.list_all()
         context.update({'categories': categories})
         return Response('200 OK', self.template.render(context), {})
 
@@ -113,8 +114,8 @@ class CategoryEdit(View):
         id_ = params['id']
         if action == 'edit':
             template = View.env.get_template('category_form.html')
-            context = {'category': Category(int(id_)).__dict__,
-                 'success_message': ''}
+            category = CategoryMapper.fetch_by_id(int(id_))
+            context = {'category': category.__dict__, 'success_message': ''}
             context.update(request.cookies)
             return Response('200 OK', template.render(context), {})
 
@@ -125,19 +126,25 @@ class CategoryEdit(View):
         id_ = int(query_params.get('category_id'))
         submit = query_params['submit_type']
         context = request.cookies
+        category = CategoryMapper.fetch_by_id(id_)
         if submit == 'edit':
-            success = Category(id_).update(name)
-            if success:
-                context.update({'category': Category(name).__dict__,
+            UnitOfWork.new_current()
+            category.name = name
+            category.mark_dirty()
+            UnitOfWork.get_current().commit()
+            UnitOfWork.set_current(None)
+            if True:
+                context.update({'category': category.__dict__,
                                 'success_message':
                                 'Name has been changed successfully!'})
                 return Response('200 OK', template.render(context), {})
 
         elif submit == 'delete':
-            Category(id_).delete()
+            CategoryMapper.delete(category)
             return CategoriesView().get(request)
 
         return Response('400 ERROR', 'Something went wrong', {})
+
 
 @register('/course')
 class CourseView(View):
