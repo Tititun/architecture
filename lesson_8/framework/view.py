@@ -193,7 +193,10 @@ class CourseEdit(View):
         }
         submit = query_params['submit_type']
         if submit == 'edit':
-            Course(id_).update(**to_update)
+            updated = Course(id_).update(**to_update)
+            if not updated:
+                return Response('400 ERROR', 'Course with this name already'
+                                             ' exists in this category', {})
             return get_request_redirect(CourseView, request,
                                         'get', {'id': id_})
         elif submit == 'copy':
