@@ -194,6 +194,17 @@ class Course(EducationServise):
     def update(self, **kwargs):
         id_ = kwargs['id']
         del kwargs['id']
+        name, category_id = kwargs.get('name'), kwargs.get('category_id')
+        if name and category_id:
+            statements = f'SELECT * FROM courses WHERE' \
+                         f' category_id = :category_id AND name = :name'
+            params = {
+                'category_id': category_id,
+                'name': name
+            }
+            res, _ = execute(statements, params)
+            if res:
+                return
         for k, v in kwargs.items():
             statement = f'UPDATE courses SET {k} = :value WHERE id = :id'
             params = {
@@ -201,6 +212,7 @@ class Course(EducationServise):
                 'id': id_
             }
             execute(statement, params)
+        return True
 
     @staticmethod
     def list_all():
